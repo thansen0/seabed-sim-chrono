@@ -12,20 +12,20 @@ set(Chrono_DIR "/home/thomas/Code/seabed_sim/chrono/build/cmake")
 # chrono/contrib/build-scripts/vsg
 list(PREPEND CMAKE_PREFIX_PATH "$ENV{HOME}/Packages/vsg")
 
-find_package(Chrono REQUIRED COMPONENTS VSG)
+find_package(Chrono REQUIRED COMPONENTS VSG Multicore)
 find_package(vsg REQUIRED)
 
-add_executable(rigid_ball main.cpp)
+add_executable(rigid_balls main.cpp)
 
 # expose headers
-target_include_directories(rigid_ball PRIVATE
+target_include_directories(rigid_balls PRIVATE
     ${CHRONO_INCLUDE_DIRS}
     /usr/include/irrlicht
     /home/thomas/Packages/vsg/include/vsg
 )
 
 # Link against whatever Chrono exported for your build
-target_link_libraries(rigid_ball PRIVATE
+target_link_libraries(rigid_balls PRIVATE
     ${CHRONO_LIBRARIES}
     Irrlicht
     vsg::vsg

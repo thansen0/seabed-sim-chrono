@@ -1,10 +1,11 @@
 #include <memory>
 
 #include "chrono/physics/ChSystemNSC.h"
+#include "chrono_multicore/physics/ChSystemMulticore.h" // ChSystemMulticoreNSC
+#include "chrono/core/ChGlobal.h"
 #include "chrono/physics/ChBodyEasy.h"
 #include "chrono/core/ChRealtimeStep.h"
 
-// Visualization (VSG)
 #include "chrono_vsg/ChVisualSystemVSG.h"
 
 #include "chrono/collision/ChCollisionSystem.h"
@@ -12,19 +13,27 @@
 using namespace chrono;
 
 int main() {
+    // set data path
+    // vsg/share/vsgExamples/textures/
+    chrono::SetChronoDataPath("/home/thomas/Code/seabed_sim/chrono/data/");
+
     // -----------------------------
     // 1) Physics system
     // -----------------------------
-    ChSystemNSC sys;
+    // ChSystemNSC sys;
+    ChSystemMulticoreNSC sys;
+    sys.SetNumThreads(std::thread::hardware_concurrency());
     sys.SetGravitationalAcceleration(ChVector3d(0, 0, -9.81));
 
     // pick Bullet collision
     sys.SetCollisionSystemType(chrono::ChCollisionSystem::Type::MULTICORE);
     
     // add solver 
-    sys.SetSolverType(ChSolver::Type::PSOR);
-    sys.GetSolver()->AsIterative()->SetMaxIterations(50);
-
+    //sys.SetSolverType(ChSolver::Type::PSOR);
+    //sys.GetSolver()->AsIterative()->SetMaxIterations(50);
+    //auto settings = sys.GetSettings();
+    //settings->solver.max_iteration = 50;      // or settings->solver.max_iter
+    //settings->solver.tolerance = 1e-4;        // optional
 
     auto mat = chrono_types::make_shared<ChContactMaterialNSC>();
     mat->SetFriction(0.6f);
@@ -34,7 +43,7 @@ int main() {
     // 2) Rigid terrain (fixed ground)
     // -----------------------------
     auto ground = chrono_types::make_shared<ChBodyEasyBox>(
-        40.0, 40.0, 1.0,   // size (x,y,z)
+        40000.0, 40000.0, 1.0,   // size (x,y,z)
         1000.0,            // density (irrelevant since fixed)
         true,              // visual shape
         true,              // collision shape
@@ -51,16 +60,22 @@ int main() {
     // -----------------------------
     // 3) A falling object to see motion
     // -----------------------------
-    auto ball = chrono_types::make_shared<ChBodyEasySphere>(
-        0.35,              // radius
-        1000.0,            // density
-        true,              // visual
-        true,              // collision
-        mat
-    );
-    ball->SetPos(ChVector3d(0, 0, 2.0));
-    ball->EnableCollision(true);
-    sys.Add(ball);
+    double x_pos_b = -0.5;
+    for (int i = 0; i < 300; i++) {
+        auto ball = chrono_types::make_shared<ChBodyEasySphere>(
+            0.35,              // radius
+            1000.0,            // density
+            true,              // visual
+            true,              // collision
+            mat
+        );
+        
+        ball->SetPos(ChVector3d(x_pos_b, 0, 2.5));
+        ball->EnableCollision(true);
+        sys.Add(ball);
+
+        x_pos_b += 0.3;
+    }
 
     // -----------------------------
     // 4) Visualization system (VSG)
