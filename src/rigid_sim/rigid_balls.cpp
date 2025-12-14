@@ -1,4 +1,5 @@
 #include <memory>
+#include <random>
 
 #include "chrono/physics/ChSystemNSC.h"
 #include "chrono_multicore/physics/ChSystemMulticore.h" // ChSystemMulticoreNSC
@@ -13,6 +14,11 @@
 using namespace chrono;
 
 int main() {
+    // pseudo random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());  // Mersenne Twister
+    std::uniform_real_distribution<double> dist(-50.0, 50.0);
+
     // set data path
     // vsg/share/vsgExamples/textures/
     chrono::SetChronoDataPath("/home/thomas/Code/seabed_sim/chrono/data/");
@@ -43,7 +49,7 @@ int main() {
     // 2) Rigid terrain (fixed ground)
     // -----------------------------
     auto ground = chrono_types::make_shared<ChBodyEasyBox>(
-        40000.0, 40000.0, 1.0,   // size (x,y,z)
+        100.0, 100.0, 1.0,   // size (x,y,z)
         1000.0,            // density (irrelevant since fixed)
         true,              // visual shape
         true,              // collision shape
@@ -60,7 +66,7 @@ int main() {
     // -----------------------------
     // 3) A falling object to see motion
     // -----------------------------
-    double x_pos_b = -0.5;
+    // double x_pos_b = -0.5;
     for (int i = 0; i < 300; i++) {
         auto ball = chrono_types::make_shared<ChBodyEasySphere>(
             0.35,              // radius
@@ -70,11 +76,11 @@ int main() {
             mat
         );
         
-        ball->SetPos(ChVector3d(x_pos_b, 0, 2.5));
+        ball->SetPos(ChVector3d(dist(gen), dist(gen), 2.5));
         ball->EnableCollision(true);
         sys.Add(ball);
 
-        x_pos_b += 0.3;
+        // x_pos_b += 0.3;
     }
 
     // -----------------------------
