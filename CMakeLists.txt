@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Tell CMake exactly where chrono-config.cmake lives:
 # <chrono_build>/cmake/chrono-config.cmake
-set(Chrono_DIR "/home/thomas/Code/seabed_sim/chrono/build/cmake")
+set(Chrono_DIR "$ENV{HOME}/Code/seabed_sim/chrono/build/cmake"
+    CACHE PATH "Path to Chrono's CMake package folder (contains chrono-config.cmake)")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
@@ -23,14 +24,12 @@ add_library(sim_common INTERFACE)
 # expose headers
 target_include_directories(sim_common INTERFACE
     ${CHRONO_INCLUDE_DIRS}
-    /usr/include/irrlicht
     /home/thomas/Packages/vsg/include/vsg
 )
 
 # Link against whatever Chrono exported for your build
-target_link_libraries(sim_common INTERFACE # rigid_balls PRIVATE
+target_link_libraries(sim_common INTERFACE
     ${CHRONO_LIBRARIES}
-    # Irrlicht
     vsg::vsg
 )
 

@@ -2,7 +2,7 @@
 
 # Immediate Goals for Project
 
- - isolate into separate src/thing folders (like demo)
+ - ~~isolate into separate src/thing folders~~
  - try deformable terrain
    - decide on terrain
    - possibly add veh to cmakelist.txt?
@@ -10,14 +10,14 @@
  - load in different shaped rigid object
                                                         
 Possible future tasks?
- - see if there's a better way to add things other than dropping them (rocks aren't dropped onto a surface lol)
+ - see if there's a better way to add things other than dropping them (polymetallic nodules aren't dropped onto a surface)
 
 ## Install
 
 This project (so far at least) uses project chrono version 9, and uses the components VSG and Multicore. You will have to set 
 
 ```
-set(Chrono_DIR "/home/thomas/Code/seabed_sim/chrono/build/cmake")
+set(Chrono_DIR "$ENV{HOME}/Code/seabed_sim/chrono/build/cmake")
 ```
 
 In your cmake to match wherever you have chrono installed/set up. Further when you build chrono you will likely have to configure VSG, and when doing that I highly recommend using the VSG setup script in Chrono, and specifically using the script in the chrono version you use.
