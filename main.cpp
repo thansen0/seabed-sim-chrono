@@ -7,6 +7,8 @@
 // Visualization (VSG)
 #include "chrono_vsg/ChVisualSystemVSG.h"
 
+#include "chrono/collision/ChCollisionSystem.h"
+
 using namespace chrono;
 
 int main() {
@@ -15,6 +17,14 @@ int main() {
     // -----------------------------
     ChSystemNSC sys;
     sys.SetGravitationalAcceleration(ChVector3d(0, 0, -9.81));
+
+    // pick Bullet collision
+    sys.SetCollisionSystemType(chrono::ChCollisionSystem::Type::MULTICORE);
+    
+    // add solver 
+    sys.SetSolverType(ChSolver::Type::PSOR);
+    sys.GetSolver()->AsIterative()->SetMaxIterations(50);
+
 
     auto mat = chrono_types::make_shared<ChContactMaterialNSC>();
     mat->SetFriction(0.6f);
@@ -32,6 +42,7 @@ int main() {
     );
     ground->SetFixed(true);
     ground->SetPos(ChVector3d(0, 0, -0.5));  // top surface at z=0
+    ground->EnableCollision(true);
     sys.Add(ground);
 
     // Optional: set some contact material properties (simple)
@@ -44,10 +55,11 @@ int main() {
         0.35,              // radius
         1000.0,            // density
         true,              // visual
-        true,               // collision
+        true,              // collision
         mat
     );
     ball->SetPos(ChVector3d(0, 0, 2.0));
+    ball->EnableCollision(true);
     sys.Add(ball);
 
     // -----------------------------
@@ -73,6 +85,19 @@ int main() {
 
     vis->Initialize();
 
+    auto coll_sys = sys.GetCollisionSystem();
+
+    if (!coll_sys) {
+        std::cout << "No collision system attached!\n";
+    } else {
+        std::cout << "Collision system class name: "
+                  << typeid(*coll_sys).name() << "\n";
+    }
+    
+    // std::cout << "Ground collision shapes: " << ground->GetCollisionModel()->GetNbShapes() << "\n";
+    // std::cout << "Ball collision shapes: " << ball->GetCollisionModel()->GetNbShapes() << "\n";
+
+
     // -----------------------------
     // 5) Sim loop
     // -----------------------------
@@ -82,6 +107,8 @@ int main() {
     while (vis->Run()) {
         // Advance dynamics
         sys.DoStepDynamics(step);
+
+        // std::cout << ball->GetPos().z() << "\n";
 
         // Render
         vis->BeginScene();
