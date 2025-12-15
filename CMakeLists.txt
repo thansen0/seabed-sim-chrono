@@ -34,7 +34,8 @@ target_link_libraries(sim_common INTERFACE
 )
 
 add_subdirectory(src/rigid_sim)
-add_subdirectory(src/fea_terrain_sim)
+# add_subdirectory(src/fea_terrain_sim)
+add_subdirectory(src/dem_sim)
 
 message(STATUS "CHRONO_INCLUDE_DIRS = ${CHRONO_INCLUDE_DIRS}")
 message(STATUS "CHRONO_LIBRARIES    = ${CHRONO_LIBRARIES}")
