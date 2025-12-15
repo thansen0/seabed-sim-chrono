@@ -50,19 +50,8 @@ int main() {
     mat->SetRestitution(0.1f);
 
     // -----------------------------
-    // 2) Rigid terrain (fixed ground)
+    // 2) FEA terrain (fixed ground)
     // -----------------------------
-    //auto ground = chrono_types::make_shared<ChBodyEasyBox>(
-    //    100.0, 100.0, 1.0,   // size (x,y,z)
-    //    1000.0,            // density (irrelevant since fixed)
-    //    true,              // visual shape
-    //    true,              // collision shape
-    //    mat
-    //);
-    //ground->SetFixed(true);
-    //ground->SetPos(ChVector3d(0, 0, -0.5));  // top surface at z=0
-    //ground->EnableCollision(true);
-    //sys.Add(ground);
     FEATerrain ground(&sys);
     ground.SetSoilParametersFEA(
         /*rho*/            1600.0,     // kg/m^3
@@ -74,10 +63,9 @@ int main() {
         /*dilatancy_angle*/ 0.0 * CH_DEG_TO_RAD
     );
 
-
     ChVector3d start(-terrain_X/2, -terrain_Y/2, -H);         // lower-left-bottom corner
     ChVector3d size ( terrain_X,    terrain_Y,    H);
-    ChVector3i nelems(40,    20,     6);        // elements in x,y,z
+    ChVector3i nelems(20,    10,     4);        // elements in x,y,z
     
     ground.Initialize(start, size, nelems);
 
@@ -88,6 +76,8 @@ int main() {
     auto vis_mesh = chrono_types::make_shared<chrono::ChVisualShapeFEA>(mesh);
     vis_mesh->SetFEMdataType(ChVisualShapeFEA::DataType::SURFACE);
     vis_mesh->SetWireframe(true);          // try true if you want to see the grid
+    // vis_mesh->SetColorscaleMinMax(0.0, 5.50);
+    // vis_mesh->SetSmoothFaces(true);
     // vis_mesh->SetShrinkElements(true, 0.85);
     // vis_mesh->SetSmoothFaces(true);
     vis_mesh->SetDrawInUndeformedReference(true);
@@ -172,17 +162,20 @@ int main() {
     // -----------------------------
     // 6) Sim loop
     // -----------------------------
-    const double step = 1e-3;
+    const double step = 1e-2;
+    const int spf = 2;
     ChRealtimeStepTimer realtime;
 
     while (vis->Run()) {
-        double t = sys.GetChTime();
-        // advance the terrain
-        ground.Synchronize(t);
-        ground.Advance(step);
+        for (int i = 0; i < spf; i++) {
+            double t = sys.GetChTime();
+            // advance the terrain
+            ground.Synchronize(t);
+            ground.Advance(step);
 
-        // Advance dynamics
-        sys.DoStepDynamics(step);
+            // Advance dynamics
+            sys.DoStepDynamics(step);
+        }
 
         // Render
         vis->BeginScene();
