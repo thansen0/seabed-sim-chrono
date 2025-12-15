@@ -66,7 +66,6 @@ int main() {
     // -----------------------------
     // 3) A falling object to see motion
     // -----------------------------
-    // double x_pos_b = -0.5;
     for (int i = 0; i < 300; i++) {
         auto ball = chrono_types::make_shared<ChBodyEasySphere>(
             0.35,              // radius
@@ -79,8 +78,6 @@ int main() {
         ball->SetPos(ChVector3d(dist(gen), dist(gen), 2.5));
         ball->EnableCollision(true);
         sys.Add(ball);
-
-        // x_pos_b += 0.3;
     }
 
     // -----------------------------
@@ -99,8 +96,6 @@ int main() {
     // vis->SetCameraVertical(chrono::vsg3d::ChVisualSystemVSG::CameraVerticalDir::Z);
 
     // Lights
-    // vis->AddDirectionalLight(ChVector3d(-1, -1, -1), ChColor(1, 1, 1), 1.5);
-    // vis->AddAmbientLight(ChColor(0.3f, 0.3f, 0.35f));
     vis->SetLightIntensity(1.5f);
     vis->SetLightDirection(1.5 * CH_PI_2, CH_PI_4);
 
@@ -115,10 +110,6 @@ int main() {
                   << typeid(*coll_sys).name() << "\n";
     }
     
-    // std::cout << "Ground collision shapes: " << ground->GetCollisionModel()->GetNbShapes() << "\n";
-    // std::cout << "Ball collision shapes: " << ball->GetCollisionModel()->GetNbShapes() << "\n";
-
-
     // -----------------------------
     // 5) Sim loop
     // -----------------------------
@@ -128,8 +119,6 @@ int main() {
     while (vis->Run()) {
         // Advance dynamics
         sys.DoStepDynamics(step);
-
-        // std::cout << ball->GetPos().z() << "\n";
 
         // Render
         vis->BeginScene();

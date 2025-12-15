@@ -15,7 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 # chrono/contrib/build-scripts/vsg
 list(PREPEND CMAKE_PREFIX_PATH "$ENV{HOME}/Packages/vsg")
 
-find_package(Chrono REQUIRED COMPONENTS VSG Multicore)
+find_package(Chrono REQUIRED COMPONENTS VSG Multicore Vehicle)
 find_package(vsg REQUIRED)
 
 # add_executable(rigid_balls main.cpp)
@@ -34,6 +34,7 @@ target_link_libraries(sim_common INTERFACE
 )
 
 add_subdirectory(src/rigid_sim)
+add_subdirectory(src/fea_terrain_sim)
 
 message(STATUS "CHRONO_INCLUDE_DIRS = ${CHRONO_INCLUDE_DIRS}")
 message(STATUS "CHRONO_LIBRARIES    = ${CHRONO_LIBRARIES}")

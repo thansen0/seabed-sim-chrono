@@ -1,0 +1,3 @@
+add_executable(fea_terrain_balls fea_terrain_balls.cpp)
+
+target_link_libraries(fea_terrain_balls PRIVATE sim_common)
