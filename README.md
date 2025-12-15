@@ -1,6 +1,12 @@
-# Deep sea Sim in Chrono
+# Deep Sea Polymetallic Nodule Sim in Chrono
 
-# Immediate Goals for Project
+Many years ago I worked on a polymetallic nodule startup. Most of my work at the time was related to hardware (or frankly legal) things, but I've always wanted to build a simulation of the seabed using Project Chrono and leftover polymetallic nodules I kept after the company shut down. 
+
+Now is that time. 
+
+This is very much an early stage project, and so much of the code is just seeing what runs well on my hardware or getting used to the libraries again. As the project progresses, I'll update this readme.
+
+## Immediate Goals
 
  - ~~isolate into separate src/thing folders~~
  - try deformable terrain

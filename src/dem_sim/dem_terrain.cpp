@@ -69,7 +69,7 @@ int main() {
     // -----------------------------------------
     // 3) Rigid spheres (these are your “balls”)
     // -----------------------------------------
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
         auto ball = chrono_types::make_shared<ChBodyEasySphere>(
             0.35,     // radius
             1000.0,   // density
@@ -78,7 +78,7 @@ int main() {
             mat
         );
 
-        ball->SetPos(ChVector3d(dist(gen), dist(gen), 2.5));
+        ball->SetPos(ChVector3d(dist(gen), dist(gen), 1.5));
         ball->EnableCollision(true);
         sys.Add(ball);
     }
@@ -87,7 +87,11 @@ int main() {
     // 4) Visualization (VSG)
     // -----------------------------------------
     auto vis = chrono_types::make_shared<chrono::vsg3d::ChVisualSystemVSG>();
+    start = std::chrono::high_resolution_clock::now();
     vis->AttachSystem(&sys);
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "System attach in " << duration << " ms" << std::endl;
 
     vis->SetWindowTitle("Chrono 9: Multicore SMC + GranularTerrain (DEM)");
     vis->SetWindowSize(1280, 720);
