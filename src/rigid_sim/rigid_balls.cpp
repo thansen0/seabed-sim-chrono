@@ -66,9 +66,9 @@ int main() {
     // -----------------------------
     // 3) A falling object to see motion
     // -----------------------------
-    for (int i = 0; i < 300; i++) {
+    for (int i = 0; i < 1000; i++) {
         auto ball = chrono_types::make_shared<ChBodyEasySphere>(
-            0.35,              // radius
+            0.05,              // radius
             1000.0,            // density
             true,              // visual
             true,              // collision
@@ -77,6 +77,14 @@ int main() {
         
         ball->SetPos(ChVector3d(dist(gen), dist(gen), 2.5));
         ball->EnableCollision(true);
+
+        // add color to make it easier to see
+        auto vis_shape = ball->GetVisualShape(0);
+        auto mat = chrono_types::make_shared<ChVisualMaterial>();
+
+        mat->SetDiffuseColor(ChColor(0.8f, 0.1f, 0.1f)); // red
+        vis_shape->SetMaterial(0, mat);
+
         sys.Add(ball);
     }
 
@@ -92,7 +100,7 @@ int main() {
     vis->SetClearColor(ChColor(0.1f, 0.1f, 0.12f));
 
     // Camera setup: eye, target, up
-    vis->AddCamera(ChVector3d(0, -12, 6), ChVector3d(0, 0, 0)); // , ChVector3d(0, 0, 1));
+    vis->AddCamera(ChVector3d(0, -12, 6), ChVector3d(0, 0, 0));
     // vis->SetCameraVertical(chrono::vsg3d::ChVisualSystemVSG::CameraVerticalDir::Z);
 
     // Lights

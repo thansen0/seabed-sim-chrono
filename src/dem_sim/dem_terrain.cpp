@@ -87,11 +87,7 @@ int main() {
     // 4) Visualization (VSG)
     // -----------------------------------------
     auto vis = chrono_types::make_shared<chrono::vsg3d::ChVisualSystemVSG>();
-    start = std::chrono::high_resolution_clock::now();
     vis->AttachSystem(&sys);
-    stop = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "System attach in " << duration << " ms" << std::endl;
 
     vis->SetWindowTitle("Chrono 9: Multicore SMC + GranularTerrain (DEM)");
     vis->SetWindowSize(1280, 720);
@@ -99,7 +95,12 @@ int main() {
     vis->AddCamera(ChVector3d(0, -25, 12), ChVector3d(0, 0, 0));
     vis->SetLightIntensity(1.5f);
     vis->SetLightDirection(1.5 * CH_PI_2, CH_PI_4);
+
+    start = std::chrono::high_resolution_clock::now();
     vis->Initialize();
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << "Viz init in " << duration << " ms" << std::endl;
 
     // -----------------------------------------
     // 5) Sim loop
