@@ -9,11 +9,11 @@ This is very much an early stage project, and so much of the code is just seeing
 ## Immediate Goals
 
  - ~~isolate into separate src/thing folders~~
- - try deformable terrain
-   - decide on terrain
+ - ~~try deformable terrain
+   - decide on terrain~~ (decision is DEM)
    - possibly add veh to cmakelist.txt?
  - space out objects
- - load in different shaped rigid object
+ - load in different shaped rigid object (my samples)
                                                         
 Possible future tasks?
  - see if there's a better way to add things other than dropping them (polymetallic nodules aren't dropped onto a surface)

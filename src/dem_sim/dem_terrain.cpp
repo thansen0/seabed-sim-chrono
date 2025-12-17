@@ -18,17 +18,19 @@ using namespace chrono;
 using namespace chrono::vehicle;
 
 // Patch parameters
-constexpr double patch_length = 10.0;     // X size
-constexpr double patch_width  = 10.0;     // Y size
-constexpr double particle_r   = 0.03;     // DEM particle radius (meters)
+constexpr double patch_length = 1.5;     // X size
+constexpr double patch_width  = 1.5;     // Y size
+constexpr double particle_r   = 0.005;     // DEM particle radius (meters)
 constexpr double particle_rho = 2000.0;   // particle density (kg/m^3)
-constexpr unsigned int layers = 3;        // number of initial layers
+constexpr unsigned int layers = 6;        // number of initial layers
 
 int main() {
     // Random placement for the rigid balls
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dist(-patch_length/2, patch_length/2);
+
+    std::uniform_real_distribution<double> radius_dist(0.01, 0.04);
 
     chrono::SetChronoDataPath("/home/thomas/Code/seabed_sim/chrono/data/");
 
@@ -64,22 +66,30 @@ int main() {
     terrain.Initialize(ChVector3d(0, 0, 0), patch_length, patch_width, layers, particle_r, particle_rho);
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "DEM initialized in " << duration << " ms" << std::endl;
+    std::cout << "DEM initialized in " << duration << std::endl;
 
     // -----------------------------------------
-    // 3) Rigid spheres (these are your “balls”)
+    // 3) Rigid spheres
     // -----------------------------------------
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 2; i++) {
         auto ball = chrono_types::make_shared<ChBodyEasySphere>(
-            0.35,     // radius
+            radius_dist(gen),     // radius
             1000.0,   // density
             true,     // visual
             true,     // collision
             mat
         );
 
-        ball->SetPos(ChVector3d(dist(gen), dist(gen), 1.5));
+        ball->SetPos(ChVector3d(dist(gen), dist(gen), 1.0));
         ball->EnableCollision(true);
+
+        // add color to make it easier to see
+        auto vis_shape = ball->GetVisualShape(0);
+        auto mat = chrono_types::make_shared<ChVisualMaterial>();
+
+        mat->SetDiffuseColor(ChColor(0.8f, 0.1f, 0.1f)); // red
+        vis_shape->SetMaterial(0, mat);
+
         sys.Add(ball);
     }
 
@@ -100,7 +110,7 @@ int main() {
     vis->Initialize();
     stop = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-    std::cout << "Viz init in " << duration << " ms" << std::endl;
+    std::cout << "Viz init in " << duration << std::endl;
 
     // -----------------------------------------
     // 5) Sim loop
