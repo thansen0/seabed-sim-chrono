@@ -9,11 +9,14 @@ This is very much an early stage project, and so much of the code is just seeing
 ## Immediate Goals
 
  - ~~isolate into separate src/thing folders~~
- - ~~try deformable terrain
-   - decide on terrain~~ (decision is DEM)
-   - possibly add veh to cmakelist.txt?
- - space out objects
+ - ~~try deformable terrain~~
+   - ~~decide on terrain~~ (decision is DEM)
+   - Add veh to cmakelist.txt
+ - Add config files
+   - possibly add command line arg for RIDIG/DEM/etc
  - load in different shaped rigid object (my samples)
+ - Get better sources for nodule frequency/sizing/etc
+   - Make a writeup about it
                                                         
 Possible future tasks?
  - see if there's a better way to add things other than dropping them (polymetallic nodules aren't dropped onto a surface)

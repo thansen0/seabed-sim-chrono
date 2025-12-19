@@ -41,6 +41,7 @@ int main() {
     // ---------------------------------------------------------
 
     DynamicSystemMulticore sys(TerrainType::DEM);
+    // DynamicSystemMulticore sys(TerrainType::RIGID);
 
     // ---------------------------------------------------------
     // 2) Generate Terrain (based on TerrainType)

@@ -9,7 +9,18 @@ DynamicSystemMulticore::DynamicSystemMulticore(TerrainType tt)
 {
     switch (tt) {
         case TerrainType::RIGID:
-            // not implemented yet
+            this->sys = new ChSystemMulticoreNSC();
+
+            sys->SetNumThreads(std::thread::hardware_concurrency());
+            sys->SetGravitationalAcceleration(ChVector3d(0, 0, -9.81));
+
+            // pick Bullet collision
+            sys->SetCollisionSystemType(chrono::ChCollisionSystem::Type::MULTICORE);
+
+            mat = chrono_types::make_shared<ChContactMaterialNSC>();
+            mat->SetFriction(0.6f);
+            mat->SetRestitution(0.1f);
+
             break;
         case TerrainType::DEM:
             this->sys = new ChSystemMulticoreSMC();
@@ -25,6 +36,7 @@ DynamicSystemMulticore::DynamicSystemMulticore(TerrainType tt)
             mat->SetFriction(0.6f);
             mat->SetRestitution(0.1f);
 
+            break;
     }
 }
 
@@ -38,13 +50,26 @@ void DynamicSystemMulticore::GenerateTerrain(double length, double width)
     switch (this->terrain_type) {
         case TerrainType::RIGID: {
             std::cout << "Rigid terrain" << std::endl;
+            chrono::ChSystemMulticoreNSC *smc_sys = static_cast<chrono::ChSystemMulticoreNSC*>(this->sys);
+
+            this->ground = chrono_types::make_shared<chrono::ChBodyEasyBox>(
+                length, width, 1.0,   // size (x,y,z)
+                1000.0,            // density (irrelevant since fixed)
+                true,              // visual shape
+                true,              // collision shape
+                mat
+            );
+            ground->SetFixed(true);
+            ground->SetPos(ChVector3d(0, 0, -0.5));  // top surface at z=0
+            ground->EnableCollision(true);
+            smc_sys->Add(ground);
+
             break;
         }
         case TerrainType::DEM: {
             std::cout << "DEM terrain" << std::endl;
             ChSystemMulticoreSMC *smc_sys = static_cast<ChSystemMulticoreSMC*>(this->sys);
 
-            // chrono::vehicle::GranularTerrain terrain();
             terrain = new chrono::vehicle::GranularTerrain(this->sys);
             terrain->SetContactMaterial(mat);
 
@@ -75,7 +100,8 @@ void DynamicSystemMulticore::GenerateTerrain(double length, double width)
 void DynamicSystemMulticore::AdvanceAll(double step) {
     switch (this->terrain_type) {
         case TerrainType::RIGID:{
-            std::cout << "Rigid terrain" << std::endl;
+            // Advance dynamics
+            sys->DoStepDynamics(step);
             break;
         }
         case TerrainType::DEM: {
@@ -94,7 +120,7 @@ void DynamicSystemMulticore::AdvanceAll(double step) {
     }
 }
 
-std::shared_ptr<chrono::ChContactMaterialSMC> DynamicSystemMulticore::GetMat() {
+std::shared_ptr<chrono::ChContactMaterial> DynamicSystemMulticore::GetMat() {
     return this->mat;
 }
 
@@ -102,7 +128,6 @@ chrono::ChSystemMulticore* DynamicSystemMulticore::GetSys() {
     return this->sys;
 }
 
-// void DynamicSystemMulticore::Add(std::shared_ptr<chrono::ChBodyEasySphere> obj) {
 void DynamicSystemMulticore::Add(std::shared_ptr<chrono::ChBody> obj) {
     ChSystemMulticoreSMC *smc_sys = static_cast<ChSystemMulticoreSMC*>(this->sys);
     smc_sys->Add(obj);

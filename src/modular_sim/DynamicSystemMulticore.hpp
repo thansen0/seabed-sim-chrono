@@ -23,16 +23,16 @@ constexpr unsigned int layers = 6;        // number of initial layers
 class DynamicSystemMulticore { // : public chrono::ChSystemMulticore {
 private:
     TerrainType terrain_type;
-    // std::unique_ptr<chrono::ChSystemMulticore> sys;
     chrono::ChSystemMulticore *sys;
     chrono::vehicle::GranularTerrain *terrain;
-    std::shared_ptr<chrono::ChContactMaterialSMC> mat;
+    std::shared_ptr<chrono::ChBodyEasyBox> ground; // TODO I don't like how these are two things
+    std::shared_ptr<chrono::ChContactMaterial> mat;
 
 public:
     explicit DynamicSystemMulticore(TerrainType);
     ~DynamicSystemMulticore();
 
-    std::shared_ptr<chrono::ChContactMaterialSMC> GetMat();
+    std::shared_ptr<chrono::ChContactMaterial> GetMat();
     chrono::ChSystemMulticore* GetSys();
 
     void GenerateTerrain(double, double);
