@@ -16,17 +16,14 @@
 
 #include "chrono_vsg/ChVisualSystemVSG.h"
 
+#include "HelperFunctions.hpp"
+
 using namespace chrono;
 using namespace chrono::vehicle;
 
-/* / Patch parameters
-constexpr double patch_length = 1.5;     // X size
-constexpr double patch_width  = 1.5;     // Y size
-constexpr double particle_r   = 0.005;     // DEM particle radius (meters)
-constexpr double particle_rho = 2000.0;   // particle density (kg/m^3)
-constexpr unsigned int layers = 6;        // number of initial layers
-*/
-int main() {
+int main(int argc, char* argv[]) {
+    TerrainType terrain_type = TerrainType::DEM;
+
     // Random placement for the rigid balls
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -37,19 +34,35 @@ int main() {
     chrono::SetChronoDataPath("/home/thomas/Code/seabed_sim/chrono/data/");
 
     // ---------------------------------------------------------
-    // 1) Physics system: MULTICORE + SMC (required for DEM style)
+    // Configure Runtime Arguments
     // ---------------------------------------------------------
-
-    DynamicSystemMulticore sys(TerrainType::DEM);
-    // DynamicSystemMulticore sys(TerrainType::RIGID);
+    if (argc > 1) {
+        std::string arg1 = argv[1];
+        trim_chars(arg1, "-");
+        lower(arg1);
+        if (arg1 == "rigid") {
+            terrain_type = TerrainType::RIGID;
+        } else if (arg1 == "dem") {
+            terrain_type = TerrainType::DEM;
+        } else {
+            std::cout << "Unknown terrain type argument: " << arg1 << "\n";
+            std::cout << "Valid options are: --rigid, --dem\n";
+            return 1;
+        }
+    }
 
     // ---------------------------------------------------------
-    // 2) Generate Terrain (based on TerrainType)
+    // Physics System Manager
+    // ---------------------------------------------------------
+    DynamicSystemMulticore sys(terrain_type);
+
+    // ---------------------------------------------------------
+    // Generate Terrain (based on TerrainType)
     // ---------------------------------------------------------
     sys.GenerateTerrain(patch_length, patch_width);
 
     // -----------------------------------------
-    // 3) Rigid spheres
+    // Create Nodules
     // -----------------------------------------
     for (int i = 0; i < 2; i++) {
         std::shared_ptr<ChBodyEasySphere> ball = chrono_types::make_shared<ChBodyEasySphere>(
@@ -74,7 +87,7 @@ int main() {
     }
 
     // -----------------------------------------
-    // 4) Visualization (VSG)
+    // Visualization with VSG
     // -----------------------------------------
     auto vis = chrono_types::make_shared<chrono::vsg3d::ChVisualSystemVSG>();
     vis->AttachSystem(sys.GetSys());
@@ -93,15 +106,16 @@ int main() {
     std::cout << "Viz init in " << duration << std::endl;
 
     // -----------------------------------------
-    // 5) Sim loop
+    // Main loop
     // -----------------------------------------
     const double step = 1e-3;
+    const int steps_per_frame = 10;
     ChRealtimeStepTimer realtime;
 
     while (vis->Run()) {
         // goal is to only render a frame every couple of
         // simulation iterations
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < steps_per_frame; i++) {
             sys.AdvanceAll(step);
         }
 
