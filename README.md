@@ -33,3 +33,20 @@ In your cmake to match wherever you have chrono installed/set up. Further when y
 
 One point of note is the script uses the most recent version of vsgImGui, which broke for me. I had to specify v0.6.0 by modifying the script. 
 
+## Build and Run
+
+```
+mkdir build && cd build/
+cmake ../
+make -j
+```
+
+And then you can run it with either the `--rigid` or `--dem` flag, or none and it will default to DEM. The `--` is also optional, I just like how it looks aesthetically. All of the commands below work.
+
+```
+./modular_sim
+./modular_sim --rigid
+./modular_sim rigid
+./modular_sim --dem
+./modular_sim dem
+```
