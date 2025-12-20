@@ -32,9 +32,6 @@ target_link_libraries(sim_common INTERFACE
     vsg::vsg
 )
 
-add_subdirectory(src/rigid_sim)
-# add_subdirectory(src/fea_terrain_sim)
-add_subdirectory(src/dem_sim)
 add_subdirectory(src/modular_sim)
 
 message(STATUS "CHRONO_INCLUDE_DIRS = ${CHRONO_INCLUDE_DIRS}")

@@ -6,21 +6,6 @@ Now is that time.
 
 This is very much an early stage project, and so much of the code is just seeing what runs well on my hardware or getting used to the libraries again. As the project progresses, I'll update this readme.
 
-## Immediate Goals
-
- - ~~isolate into separate src/thing folders~~
- - ~~try deformable terrain~~
-   - ~~decide on terrain~~ (decision is DEM)
-   - Add veh to cmakelist.txt
- - Add config files
-   - possibly add command line arg for RIDIG/DEM/etc
- - load in different shaped rigid object (my samples)
- - Get better sources for nodule frequency/sizing/etc
-   - Make a writeup about it
-                                                        
-Possible future tasks?
- - see if there's a better way to add things other than dropping them (polymetallic nodules aren't dropped onto a surface)
-
 ## Install
 
 This project (so far at least) uses project chrono version 9, and uses the components VSG and Multicore. You will have to set 
@@ -50,3 +35,18 @@ And then you can run it with either the `--rigid` or `--dem` flag, or none and i
 ./modular_sim --dem
 ./modular_sim dem
 ```
+
+## Immediate Goals
+
+ - ~~isolate into separate src/thing folders~~
+ - ~~try deformable terrain~~
+   - ~~decide on terrain~~ (decision is DEM)
+   - Add veh to cmakelist.txt
+ - Add config files
+   - possibly add command line arg for RIDIG/DEM/etc
+ - load in different shaped rigid object (my samples)
+ - Get better sources for nodule frequency/sizing/etc
+   - Make a writeup about it
+                                                        
+Possible future tasks?
+ - see if there's a better way to add things other than dropping them (polymetallic nodules aren't dropped onto a surface)
