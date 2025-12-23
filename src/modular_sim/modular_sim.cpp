@@ -17,9 +17,12 @@
 #include "chrono_vsg/ChVisualSystemVSG.h"
 
 #include "HelperFunctions.hpp"
+#include "NoduleGenerator.hpp"
 
 using namespace chrono;
 using namespace chrono::vehicle;
+
+
 
 int main(int argc, char* argv[]) {
     TerrainType terrain_type = TerrainType::DEM;
@@ -29,7 +32,8 @@ int main(int argc, char* argv[]) {
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dist(-patch_length/2, patch_length/2);
 
-    std::uniform_real_distribution<double> radius_dist(0.01, 0.04);
+    // std::uniform_real_distribution<double> radius_dist(0.01, 0.04);
+    std::normal_distribution<double> radius_dist(.002185, 0.007737);
 
     chrono::SetChronoDataPath("/home/thomas/Code/seabed_sim/chrono/data/");
 
@@ -64,16 +68,43 @@ int main(int argc, char* argv[]) {
     // -----------------------------------------
     // Create Nodules
     // -----------------------------------------
-    for (int i = 0; i < 2; i++) {
-        std::shared_ptr<ChBodyEasySphere> ball = chrono_types::make_shared<ChBodyEasySphere>(
-            radius_dist(gen),     // radius
+    // calculate number of nodules
+    FieldParams P;
+    P.L = patch_length;
+    P.W = patch_width;
+
+    // Option A: specify target cover
+    P.use_target_cover = true;
+    P.target_cover = 0.064; // 6.4%
+
+    // Size distribution: mean 1.8 cm, 90th percentile 2.5 cm
+    P.diam = LogNormalDiam::from_mean_p90(0.018, 0.025);
+
+    // Overlap behavior
+    P.gap = 0.0;  // allow touching
+    P.max_attempts_per_nodule = 60;
+
+    // Patchiness (set patchy=false for homogeneous)
+    P.patchy = true;
+    P.patch_cell = 1.0;      // 1m-scale patches
+    P.patch_sigma = 0.8;     // higher = more patchy
+    P.patch_smooth_iters = 3;
+
+    P.seed = 42;
+
+    auto nodules = generate_nodules(P);
+
+    std::cerr << "Generated " << nodules.size() << " nodules\n";
+    for (const auto& n : nodules) {
+            std::shared_ptr<ChBody> ball = chrono_types::make_shared<ChBodyEasySphere>(
+            n.d / 2.0,     // radius
             1000.0,   // density
             true,     // visual
             true,     // collision
             sys.GetMat() // mat
         );
 
-        ball->SetPos(ChVector3d(dist(gen), dist(gen), 1.0));
+        ball->SetPos(ChVector3d(n.x - (P.L / 2.0), n.y - (P.W / 2.0), 1.0));
         ball->EnableCollision(true);
 
         // add color to make it easier to see

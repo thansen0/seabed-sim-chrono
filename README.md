@@ -8,7 +8,7 @@ This is very much an early stage project, and so much of the code is just seeing
 
 ## Install
 
-This project (so far at least) uses project chrono version 9, and uses the components VSG and Multicore. You will have to set 
+This project (so far at least) uses project chrono version 9, and uses the components VSG, Vehicle, and Multicore. You will have to set 
 
 ```
 set(Chrono_DIR "$ENV{HOME}/Code/seabed_sim/chrono/build/cmake")
