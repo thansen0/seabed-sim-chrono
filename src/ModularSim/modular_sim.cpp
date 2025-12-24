@@ -22,7 +22,10 @@
 using namespace chrono;
 using namespace chrono::vehicle;
 
+std::string config_path = "../config/config.toml";
 
+double sim_length;     // X size
+double sim_width;     // Y size
 
 int main(int argc, char* argv[]) {
     TerrainType terrain_type = TerrainType::DEM;
@@ -30,7 +33,7 @@ int main(int argc, char* argv[]) {
     // Random placement for the rigid balls
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(-patch_length/2, patch_length/2);
+    std::uniform_real_distribution<double> dist(-sim_length/2, sim_length/2);
 
     // std::uniform_real_distribution<double> radius_dist(0.01, 0.04);
     std::normal_distribution<double> radius_dist(.002185, 0.007737);
@@ -41,29 +44,49 @@ int main(int argc, char* argv[]) {
     // Configure Runtime Arguments
     // ---------------------------------------------------------
     if (argc > 1) {
-        std::string arg1 = argv[1];
-        trim_chars(arg1, "-");
-        lower(arg1);
-        if (arg1 == "rigid") {
-            terrain_type = TerrainType::RIGID;
-        } else if (arg1 == "dem") {
-            terrain_type = TerrainType::DEM;
-        } else {
-            std::cout << "Unknown terrain type argument: " << arg1 << "\n";
-            std::cout << "Valid options are: --rigid, --dem\n";
-            return 1;
+        unsigned int cur_arg = 1;
+
+        while (cur_arg < static_cast<unsigned int>(argc)) {
+            std::string arg1 = argv[1];
+
+            trim_chars(arg1, "-");
+            lower(arg1);
+            if (arg1 == "rigid") {
+                terrain_type = TerrainType::RIGID;
+            } else if (arg1 == "dem") {
+                terrain_type = TerrainType::DEM;
+            } else if (arg1 == "config") {
+                if (cur_arg + 1 < static_cast<unsigned int>(argc)) {
+                    config_path = argv[cur_arg++];
+                    std::cout << "Updated config path to " << config_path << std::endl;
+                } else {
+                    std::cout << "No config path provided after --config" << std::endl;
+                    return 1;
+                }
+            } else {
+                std::cout << "Unknown terrain type argument: " << arg1 << "\n";
+                std::cout << "Valid options are: --rigid, --dem\n";
+                return 1;
+            }
+
+            cur_arg++;
         }
     }
 
     // ---------------------------------------------------------
+    // Build config file
+    // ---------------------------------------------------------
+    toml::table config_tbl = parse_toml_file(config_path);
+
+    // ---------------------------------------------------------
     // Physics System Manager
     // ---------------------------------------------------------
-    DynamicSystemMulticore sys(terrain_type);
+    DynamicSystemMulticore sys(terrain_type, config_tbl);
 
     // ---------------------------------------------------------
     // Generate Terrain (based on TerrainType)
     // ---------------------------------------------------------
-    sys.GenerateTerrain(patch_length, patch_width);
+    sys.GenerateTerrain(sim_length, sim_width);
 
     // -----------------------------------------
     // Create Nodules
@@ -75,7 +98,7 @@ int main(int argc, char* argv[]) {
     for (const auto& n : nodules) {
         std::shared_ptr<ChBody> ball = n.nodule;
 
-        ball->SetPos(ChVector3d(n.x - (patch_length / 2.0), n.y - (patch_width / 2.0), 1.0));
+        ball->SetPos(ChVector3d(n.x - (sim_length / 2.0), n.y - (sim_width / 2.0), 1.0));
         ball->EnableCollision(true);
 
         // add color to make it easier to see

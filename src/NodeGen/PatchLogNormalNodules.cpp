@@ -14,8 +14,8 @@ using namespace chrono::vehicle;
 PatchLotNormalNodules::PatchLotNormalNodules(const std::string& config_path, DynamicSystemMulticore *sys) : AbstractNoduleGenerator(config_path, sys) {
     // calculate number of nodules
     // FieldParams P;
-    P.L = patch_length;
-    P.W = patch_width;
+    P.L = sim_length;
+    P.W = sim_width;
 
     // Option A: specify target cover
     P.use_target_cover = true;
@@ -179,14 +179,6 @@ std::vector<Nodule> PatchLotNormalNodules::generate_nodules() {
                             true,     // collision
                             sys->GetMat() // mat
                         );
-                        // std::shared_ptr<chrono::ChBody> ball = chrono_types::make_shared<chrono::ChBodyEasySphere>(
-                        //     d / 2.0,     // radius
-                        //     1000.0,   // density
-                        //     true,     // visual
-                        //     true,     // collision
-                        //     // TODO I assume this won't work, I 1) must overwrite it, and 2) may need a different contact material
-                        //     chrono_types::make_shared<chrono::ChContactMaterialSMC>()
-                        // );
 
                         out.push_back(Nodule{x, y, d, ball});
                         insert_grid(static_cast<int>(out.size() - 1));

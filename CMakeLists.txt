@@ -18,6 +18,9 @@ list(PREPEND CMAKE_PREFIX_PATH "$ENV{HOME}/Packages/vsg")
 find_package(Chrono REQUIRED COMPONENTS VSG Multicore Vehicle)
 find_package(vsg REQUIRED)
 
+# add toml++, link later as tomlplusplus::tomlplusplus
+add_subdirectory(extern/tomlplusplus)
+
 add_library(sim_common INTERFACE)
 
 # expose headers

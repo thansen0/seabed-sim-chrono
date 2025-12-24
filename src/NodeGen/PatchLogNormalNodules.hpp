@@ -14,6 +14,9 @@
 #include "AbstractNoduleGenerator.hpp"
 #include "DynamicSystemMulticore.hpp"
 
+extern double sim_length;   // X size
+extern double sim_width;    // Y size
+
 class PatchLotNormalNodules : public AbstractNoduleGenerator {
 private:
     // ---------- Lognormal diameter model ----------

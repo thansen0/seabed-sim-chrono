@@ -1,18 +1,60 @@
 #include <iostream>
+#include <toml++/toml.h>
 #include "DynamicSystemMulticore.hpp"
 #include "chrono/physics/ChSystem.h"
 
 using namespace chrono;
 
 DynamicSystemMulticore::DynamicSystemMulticore(TerrainType tt)
-    : terrain_type{tt}
+    : terrain_type(tt)
 {
-    switch (tt) {
+    // build actual system
+    InitializeSystem();
+}
+
+DynamicSystemMulticore::DynamicSystemMulticore(TerrainType tt, toml::table& config_tbl)
+    : DynamicSystemMulticore(tt)
+{
+    // attempt to read parameters from config table based on terrain type
+    switch (this->terrain_type) {
+        case TerrainType::RIGID:
+            // do nothing, no config params needed
+            break;
+        case TerrainType::DEM:
+            auto sys_tbl = config_tbl["SYSTEM"];
+
+            if (auto v = sys_tbl["dem_layers"].value<uint32_t>()) {
+                layers = *v;
+            } else {
+                std::cerr << "Warning: dem_layers not set in config, using default " << layers << std::endl;
+            }
+
+            if (auto v = sys_tbl["dem_particle_radius"].value<double>()) {
+                particle_r = *v;
+            } else {
+                std::cerr << "Warning: particle_r not set in config, using default " << particle_r << std::endl;
+            }
+
+            if (auto v = sys_tbl["dem_particle_rho"].value<double>()) {
+                particle_rho = *v;
+            } else {
+                std::cerr << "Warning: particle_rho not set in config, using default " << particle_rho << std::endl;
+            }
+
+            break;
+    }
+
+    // finish building the system
+    InitializeSystem();
+}
+
+void DynamicSystemMulticore::InitializeSystem() {
+    switch (this->terrain_type) {
         case TerrainType::RIGID:
             this->sys = new ChSystemMulticoreNSC();
 
             sys->SetNumThreads(std::thread::hardware_concurrency());
-            sys->SetGravitationalAcceleration(ChVector3d(0, 0, -9.81));
+            sys->SetGravitationalAcceleration(ChVector3d(0, 0, gravitational_const));
 
             // pick Bullet collision
             sys->SetCollisionSystemType(chrono::ChCollisionSystem::Type::MULTICORE);
@@ -26,9 +68,9 @@ DynamicSystemMulticore::DynamicSystemMulticore(TerrainType tt)
             this->sys = new ChSystemMulticoreSMC();
 
             this->sys->SetNumThreads(std::thread::hardware_concurrency());
-            this->sys->SetGravitationalAcceleration(ChVector3d(0, 0, -9.81));
+            this->sys->SetGravitationalAcceleration(ChVector3d(0, 0, gravitational_const));
 
-            // Multicore collision (pairs well with ChSystemMulticore*)
+            // Multicore collision
             this->sys->SetCollisionSystemType(ChCollisionSystem::Type::MULTICORE);
 
             // Contact material MUST match the system contact method (SMC here)
@@ -36,6 +78,10 @@ DynamicSystemMulticore::DynamicSystemMulticore(TerrainType tt)
             mat->SetFriction(0.6f);
             mat->SetRestitution(0.1f);
 
+            break;
+        default:
+            std::cout << "Error! Unknown TerrainType " << static_cast<int32_t>(this->terrain_type) << ". Exiting." << std::endl;
+            exit(-1);
             break;
     }
 }

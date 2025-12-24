@@ -1,0 +1,10 @@
+[MASTER_CONFIG]
+sim_length = 2
+sim_width = 2
+
+[SYSTEM]
+# values only used for DEM simulation, 
+# i.e. granular
+dem_particle_radius = 0.006
+dem_particle_rho = 2000.0
+dem_layers = 3
