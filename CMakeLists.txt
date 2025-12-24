@@ -32,7 +32,8 @@ target_link_libraries(sim_common INTERFACE
     vsg::vsg
 )
 
-add_subdirectory(src/modular_sim)
+# add_subdirectory(src/modular_sim)
+add_subdirectory(src/)
 
 message(STATUS "CHRONO_INCLUDE_DIRS = ${CHRONO_INCLUDE_DIRS}")
 message(STATUS "CHRONO_LIBRARIES    = ${CHRONO_LIBRARIES}")
