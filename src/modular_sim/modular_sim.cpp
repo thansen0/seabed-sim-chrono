@@ -17,7 +17,7 @@
 #include "chrono_vsg/ChVisualSystemVSG.h"
 
 #include "HelperFunctions.hpp"
-#include "NoduleGenerator.hpp"
+#include "PatchLogNormalNodules.hpp"
 
 using namespace chrono;
 using namespace chrono::vehicle;
@@ -68,49 +68,24 @@ int main(int argc, char* argv[]) {
     // -----------------------------------------
     // Create Nodules
     // -----------------------------------------
-    // calculate number of nodules
-    FieldParams P;
-    P.L = patch_length;
-    P.W = patch_width;
-
-    // Option A: specify target cover
-    P.use_target_cover = true;
-    P.target_cover = 0.064; // 6.4%
-
-    // Size distribution: mean 1.8 cm, 90th percentile 2.5 cm
-    P.diam = LogNormalDiam::from_mean_p90(0.018, 0.025);
-
-    // Overlap behavior
-    P.gap = 0.0;  // allow touching
-    P.max_attempts_per_nodule = 60;
-
-    // Patchiness (set patchy=false for homogeneous)
-    P.patchy = true;
-    P.patch_cell = 1.0;      // 1m-scale patches
-    P.patch_sigma = 0.8;     // higher = more patchy
-    P.patch_smooth_iters = 3;
-
-    P.seed = 42;
-
-    auto nodules = generate_nodules(P);
+    PatchLotNormalNodules generator("future_config_path", &sys);
+    auto nodules = generator.generate_nodules();
 
     std::cerr << "Generated " << nodules.size() << " nodules\n";
     for (const auto& n : nodules) {
-            std::shared_ptr<ChBody> ball = chrono_types::make_shared<ChBodyEasySphere>(
-            n.d / 2.0,     // radius
-            1000.0,   // density
-            true,     // visual
-            true,     // collision
-            sys.GetMat() // mat
-        );
+        std::shared_ptr<ChBody> ball = n.nodule;
 
-        ball->SetPos(ChVector3d(n.x - (P.L / 2.0), n.y - (P.W / 2.0), 1.0));
+        ball->SetPos(ChVector3d(n.x - (patch_length / 2.0), n.y - (patch_width / 2.0), 1.0));
         ball->EnableCollision(true);
 
         // add color to make it easier to see
         auto vis_shape = ball->GetVisualShape(0);
-        auto mat = chrono_types::make_shared<ChVisualMaterial>();
 
+        // set system contact material
+        // ball->GetCollisionModel()->SetAllShapesMaterial(sys.GetMat());
+
+        // sets visual color material
+        auto mat = chrono_types::make_shared<ChVisualMaterial>();
         mat->SetDiffuseColor(ChColor(0.8f, 0.1f, 0.1f)); // red
         vis_shape->SetMaterial(0, mat);
 
