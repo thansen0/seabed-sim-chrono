@@ -1,10 +1,12 @@
 # Deep Sea Polymetallic Nodule Sim in Chrono
 
-Many years ago I worked on a polymetallic nodule startup. Most of my work at the time was related to hardware (or frankly legal) things, but I've always wanted to build a simulation of the seabed using Project Chrono and leftover polymetallic nodules I kept after the company shut down. 
+Many years ago I worked on a polymetallic nodule startup. Most of my work at the time was related to physical robotics (or frankly legal) things, but I've always wanted to build a simulation of the seabed using Project Chrono and leftover polymetallic nodules I kept after the company shut down. 
 
 Now is that time. 
 
 This is very much an early stage project, and so much of the code is just seeing what runs well on my hardware or getting used to the libraries again. As the project progresses, I'll update this readme.
+
+![Image of running simulation](./assets/running_sim.png)
 
 ## Install
 
@@ -31,9 +33,9 @@ And then you can run it with either the `--rigid` or `--dem` flag, or none and i
 ```
 ./modular_sim
 ./modular_sim --rigid
-./modular_sim rigid
+./modular_sim rigid # same as above flag
 ./modular_sim --dem
-./modular_sim dem
+./modular_sim --config "./path/to/config.toml"
 ```
 
 ## Immediate Goals
@@ -41,12 +43,13 @@ And then you can run it with either the `--rigid` or `--dem` flag, or none and i
  - ~~isolate into separate src/thing folders~~
  - ~~try deformable terrain~~
    - ~~decide on terrain~~ (decision is DEM)
-   - Add veh to cmakelist.txt
- - Add config files
+   - ~~Add veh to cmakelist.txt~~
+ - ~~Add config files~~
    - possibly add command line arg for RIDIG/DEM/etc
  - load in different shaped rigid object (my samples)
  - Get better sources for nodule frequency/sizing/etc
    - Make a writeup about it
                                                         
 Possible future tasks?
- - see if there's a better way to add things other than dropping them (polymetallic nodules aren't dropped onto a surface)
+ - see if there's a better way to add things other than dropping them from a z axis height
+ - consider adding moving patch

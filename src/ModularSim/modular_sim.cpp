@@ -24,20 +24,12 @@ using namespace chrono::vehicle;
 
 std::string config_path = "../config/config.toml";
 
-double sim_length;     // X size
-double sim_width;     // Y size
+double sim_length;                          // X size
+double sim_width;                           // Y size
+constexpr double sim_particle_height{0.5};  // Z pos
 
 int main(int argc, char* argv[]) {
     TerrainType terrain_type = TerrainType::DEM;
-
-    // Random placement for the rigid balls
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(-sim_length/2, sim_length/2);
-
-    // std::uniform_real_distribution<double> radius_dist(0.01, 0.04);
-    std::normal_distribution<double> radius_dist(.002185, 0.007737);
-
     chrono::SetChronoDataPath("/home/thomas/Code/seabed_sim/chrono/data/");
 
     // ---------------------------------------------------------
@@ -64,8 +56,8 @@ int main(int argc, char* argv[]) {
                     return 1;
                 }
             } else {
-                std::cout << "Unknown terrain type argument: " << arg1 << "\n";
-                std::cout << "Valid options are: --rigid, --dem\n";
+                std::cout << "Unknown terrain type argument: " << arg1 << std::endl;
+                std::cout << "Valid options are: --rigid, --dem, --config \"path/to/config.toml\"\n";
                 return 1;
             }
 
@@ -94,11 +86,11 @@ int main(int argc, char* argv[]) {
     PatchLotNormalNodules generator("future_config_path", &sys);
     auto nodules = generator.generate_nodules();
 
-    std::cerr << "Generated " << nodules.size() << " nodules\n";
+    auto start = std::chrono::high_resolution_clock::now();
     for (const auto& n : nodules) {
         std::shared_ptr<ChBody> ball = n.nodule;
 
-        ball->SetPos(ChVector3d(n.x - (sim_length / 2.0), n.y - (sim_width / 2.0), 1.0));
+        ball->SetPos(ChVector3d(n.x - (sim_length / 2.0), n.y - (sim_width / 2.0), sim_particle_height));
         ball->EnableCollision(true);
 
         // add color to make it easier to see
@@ -114,6 +106,9 @@ int main(int argc, char* argv[]) {
 
         sys.Add(ball);
     }
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    std::cout << nodules.size() << " nodles generated in " << duration << std::endl;
 
     // -----------------------------------------
     // Visualization with VSG
@@ -128,10 +123,10 @@ int main(int argc, char* argv[]) {
     vis->SetLightIntensity(1.5f);
     vis->SetLightDirection(1.5 * CH_PI_2, CH_PI_4);
 
-    auto start = std::chrono::high_resolution_clock::now();
+    start = std::chrono::high_resolution_clock::now();
     vis->Initialize();
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+    stop = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
     std::cout << "Viz init in " << duration << std::endl;
 
     // -----------------------------------------
@@ -142,20 +137,27 @@ int main(int argc, char* argv[]) {
     ChRealtimeStepTimer realtime;
 
     while (vis->Run()) {
+        auto start = std::chrono::high_resolution_clock::now();
         // goal is to only render a frame every couple of
         // simulation iterations
         for (int i = 0; i < steps_per_frame; i++) {
             sys.AdvanceAll(step);
         }
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+        std::cout << "VIS took " << duration << ", or for each itr: " << std::chrono::duration_cast<std::chrono::milliseconds>(duration / steps_per_frame) << std::endl;
 
-        auto start = std::chrono::high_resolution_clock::now();
+        // -----------------------------------------
+        // Scene rendering
+        // -----------------------------------------
+        start = std::chrono::high_resolution_clock::now();
 
         vis->BeginScene();
         vis->Render();
         vis->EndScene();
 
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+        stop = std::chrono::high_resolution_clock::now();
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
         std::cout << "VIS took " << duration << std::endl;
 
         realtime.Spin(step);
