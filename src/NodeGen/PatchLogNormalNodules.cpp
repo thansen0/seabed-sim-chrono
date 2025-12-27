@@ -11,9 +11,9 @@
 using namespace chrono;
 using namespace chrono::vehicle;
 
-PatchLotNormalNodules::PatchLotNormalNodules(const std::string& config_path, DynamicSystemMulticore *sys) : AbstractNoduleGenerator(config_path, sys) {
+PatchLogNormalNodules::PatchLogNormalNodules(const std::string& config_path, DynamicSystemMulticore *sys) : AbstractNoduleGenerator(config_path, sys) {
     // calculate number of nodules
-    // FieldParams P;
+    // ConfigParams P;
     P.L = sim_length;
     P.W = sim_width;
 
@@ -37,7 +37,7 @@ PatchLotNormalNodules::PatchLotNormalNodules(const std::string& config_path, Dyn
     P.seed = 42;
 }
 
-void PatchLotNormalNodules::box_blur(std::vector<double>& a, int nx, int ny) {
+void PatchLogNormalNodules::box_blur(std::vector<double>& a, int nx, int ny) {
     std::vector<double> out(a.size(), 0.0);
     auto at = [&](int x, int y) -> double& { return a[y*nx + x]; };
     auto outat = [&](int x, int y) -> double& { return out[y*nx + x]; };
@@ -61,7 +61,7 @@ void PatchLotNormalNodules::box_blur(std::vector<double>& a, int nx, int ny) {
     a.swap(out);
 }
 
-std::vector<Nodule> PatchLotNormalNodules::generate_nodules() {
+std::vector<Nodule> PatchLogNormalNodules::generate_nodules() {
     std::mt19937_64 rng(P.seed);
     std::uniform_real_distribution<double> U01(0.0, 1.0);
 

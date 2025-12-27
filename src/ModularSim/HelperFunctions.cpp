@@ -27,7 +27,7 @@ void trim_chars(std::string& s, std::string_view chars) {
 toml::table parse_toml_file(const std::string& filepath) {
     if (!std::filesystem::exists(filepath)) {
         // file doesn't exist
-        std::cerr << "Config file " << filepath << " does not exist! Exiting." << std::endl;
+        std::cerr << "Config file \"" << filepath << "\" does not exist! Exiting." << std::endl;
         exit(2);
     }
 

@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
                 terrain_type = TerrainType::DEM;
             } else if (arg1 == "config") {
                 if (cur_arg + 1 < static_cast<unsigned int>(argc)) {
-                    config_path = argv[cur_arg++];
+                    config_path = argv[++cur_arg];
                     std::cout << "Updated config path to " << config_path << std::endl;
                 } else {
                     std::cout << "No config path provided after --config" << std::endl;
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
     // -----------------------------------------
     // Create Nodules
     // -----------------------------------------
-    PatchLotNormalNodules generator("future_config_path", &sys);
+    PatchLogNormalNodules generator("replace path with toml::table", &sys);
     auto nodules = generator.generate_nodules();
 
     auto start = std::chrono::high_resolution_clock::now();

@@ -17,7 +17,7 @@
 extern double sim_length;   // X size
 extern double sim_width;    // Y size
 
-class PatchLotNormalNodules : public AbstractNoduleGenerator {
+class PatchLogNormalNodules : public AbstractNoduleGenerator {
 private:
     // ---------- Lognormal diameter model ----------
     struct LogNormalDiam {
@@ -122,9 +122,10 @@ private:
     };
 
     // ---------- Generator parameters ----------
-    struct FieldParams {
-        double L = 10.0;               // length (m)
-        double W = 10.0;               // width  (m)
+    struct ConfigParams {
+        // set in constructor from [MASTER_CONFIG]
+        double L;               // length (m)
+        double W;               // width  (m)
 
         // Choose ONE:
         bool use_target_cover = true;
@@ -151,10 +152,10 @@ private:
     void box_blur(std::vector<double>& a, int nx, int ny);
 
     // values set in constructor
-    FieldParams P;
+    ConfigParams P;
 
 public:
-    PatchLotNormalNodules(const std::string& config_path, DynamicSystemMulticore *sys);
+    PatchLogNormalNodules(const std::string& config_path, DynamicSystemMulticore *sys);
 
     std::vector<Nodule> generate_nodules() override;
 };

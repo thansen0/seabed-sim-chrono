@@ -27,9 +27,17 @@ private:
 
     // default values, consider removing if we want to force
     // config file setup
-    double particle_r   = 0.006;    // DEM particle radius (meters)
-    double particle_rho = 2000.0;   // particle density (kg/m^3)
-    uint32_t layers     = 3;        // number of initial layers
+    // double particle_r   = 0.006;    // DEM particle radius (meters)
+    // double particle_rho = 2000.0;   // particle density (kg/m^3)
+    // uint32_t layers     = 3;        // number of initial layers
+
+    struct ConfigParams {
+        double particle_r   = 0.006;    // DEM particle radius (meters)
+        double particle_rho = 2000.0;   // particle density (kg/m^3)
+        uint32_t layers     = 3;        // number of initial layers
+    };
+
+    ConfigParams P;
 
     /* Must be called during one of the constructors, otherwise
      * the system will not be set up properly

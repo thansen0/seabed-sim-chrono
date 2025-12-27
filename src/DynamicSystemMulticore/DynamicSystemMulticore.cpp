@@ -24,21 +24,21 @@ DynamicSystemMulticore::DynamicSystemMulticore(TerrainType tt, toml::table& conf
             auto sys_tbl = config_tbl["SYSTEM"];
 
             if (auto v = sys_tbl["dem_layers"].value<uint32_t>()) {
-                layers = *v;
+                P.layers = *v;
             } else {
-                std::cerr << "Warning: dem_layers not set in config, using default " << layers << std::endl;
+                std::cerr << "Warning: dem_layers not set in config, using default " << P.layers << std::endl;
             }
 
             if (auto v = sys_tbl["dem_particle_radius"].value<double>()) {
-                particle_r = *v;
+                P.particle_r = *v;
             } else {
-                std::cerr << "Warning: particle_r not set in config, using default " << particle_r << std::endl;
+                std::cerr << "Warning: particle_r not set in config, using default " << P.particle_r << std::endl;
             }
 
             if (auto v = sys_tbl["dem_particle_rho"].value<double>()) {
-                particle_rho = *v;
+                P.particle_rho = *v;
             } else {
-                std::cerr << "Warning: particle_rho not set in config, using default " << particle_rho << std::endl;
+                std::cerr << "Warning: particle_rho not set in config, using default " << P.particle_rho << std::endl;
             }
 
             break;
@@ -127,7 +127,7 @@ void DynamicSystemMulticore::GenerateTerrain(double length, double width)
 
             auto start = std::chrono::high_resolution_clock::now();
             // Initialize: center is the *center of the bottom* of the patch :contentReference[oaicite:1]{index=1}
-            terrain->Initialize(ChVector3d(0, 0, 0), length, width, layers, particle_r, particle_rho);
+            terrain->Initialize(ChVector3d(0, 0, 0), length, width, P.layers, P.particle_r, P.particle_rho);
             auto stop = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
             std::cout << "DEM initialized in " << duration << std::endl;
