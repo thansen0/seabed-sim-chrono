@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
     // -----------------------------------------
     // Create Nodules
     // -----------------------------------------
-    PatchLogNormalNodules generator("replace path with toml::table", &sys);
+    PatchLogNormalNodules generator(config_tbl, &sys);
     auto nodules = generator.generate_nodules();
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -137,6 +137,9 @@ int main(int argc, char* argv[]) {
     ChRealtimeStepTimer realtime;
 
     while (vis->Run()) {
+        // -----------------------------------------
+        // Advance Simulation
+        // -----------------------------------------
         auto start = std::chrono::high_resolution_clock::now();
         // goal is to only render a frame every couple of
         // simulation iterations

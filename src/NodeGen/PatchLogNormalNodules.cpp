@@ -11,30 +11,95 @@
 using namespace chrono;
 using namespace chrono::vehicle;
 
-PatchLogNormalNodules::PatchLogNormalNodules(const std::string& config_path, DynamicSystemMulticore *sys) : AbstractNoduleGenerator(config_path, sys) {
-    // calculate number of nodules
-    // ConfigParams P;
+PatchLogNormalNodules::PatchLogNormalNodules(const toml::table& config_tbl, DynamicSystemMulticore *sys) : AbstractNoduleGenerator(config_tbl, sys) {
+    auto sys_tbl = config_tbl["NODULES"];
+
+    if (auto v = sys_tbl["nodule_rand_seed"].value<uint32_t>()) {
+        P.seed = *v;
+    } else {
+        P.seed = std::random_device{}();
+        std::cerr << "Warning: nodule_rand_seed not set in config, using random value " << P.seed << std::endl;
+    }
+
+    // Manages how nodules are placed
+    if (auto v = sys_tbl["use_target_cover"].value<bool>()) {
+        P.use_target_cover = *v;
+    } else {
+        std::cerr << "Warning: use_target_cover not set in config, using default " << P.use_target_cover << std::endl;
+    }
+
+    if (P.use_target_cover) {
+        // distributing nodules by target cover fraction (i.e. percentage area covered)
+        if (auto v = sys_tbl["nodule_target_cover_fraction"].value<double>()) {
+            P.target_cover = *v;
+        } else {
+            std::cerr << "Warning: nodule_target_cover_fraction not set in config, using default " << P.target_cover << std::endl;
+        }
+    } else {
+        // distributing nodules by density
+        if (auto v = sys_tbl["nodule_density_per_m_sqr"].value<double>()) {
+            P.density = *v;
+        } else {
+            std::cerr << "Warning: nodule_density_per_m_sqr not set in config, using default " << P.density << std::endl;
+        }
+    }
+
+    if (auto v = sys_tbl["gap_between_nodules"].value<double>()) {
+        P.gap = *v;
+    } else {
+        std::cerr << "Warning: gap_between_nodules not set in config, using default " << P.gap << std::endl;
+    }
+
+    if (auto v = sys_tbl["max_attempts_per_nodule"].value<uint32_t>()) {
+        P.max_attempts_per_nodule = *v;
+    } else {
+        std::cerr << "Warning: max_attempts_per_nodule not set in config, using default " << P.max_attempts_per_nodule << std::endl;
+    }
+
+    // Enable patchyness, i.e. spatially varying intensity
+    if (auto v = sys_tbl["using_patchy"].value<bool>()) {
+        P.using_patchy = *v;
+    } else {
+        std::cerr << "Warning: using_patchy not set in config, using default " << P.using_patchy << std::endl;
+    }
+
+    if (auto v = sys_tbl["patch_cell"].value<double>()) {
+        P.patch_cell = *v;
+    } else {
+        std::cerr << "Warning: patch_cell not set in config, using default " << P.patch_cell << std::endl;
+    }
+
+    if (auto v = sys_tbl["patch_sigma"].value<double>()) {
+        P.patch_sigma = *v;
+    } else {
+        std::cerr << "Warning: patch_sigma not set in config, using default " << P.patch_sigma << std::endl;
+    }
+
+    if (auto v = sys_tbl["patch_smooth_iters"].value<uint32_t>()) {
+        P.patch_smooth_iters = *v;
+    } else {
+        std::cerr << "Warning: patch_smooth_iters not set in config, using default " << P.patch_smooth_iters << std::endl;
+    }
+
+    // set LogNormalDiam nodule size distribution
+    double nodule_diameter_mean{0.018}, nodule_diameter_p90{0.025};
+    if (auto v = sys_tbl["nodule_diameter_mean"].value<double>()) {
+        nodule_diameter_mean = *v;
+    } else {
+        std::cerr << "Warning: nodule_diameter_mean not set in config, using default " << nodule_diameter_mean << std::endl;
+    }
+    if (auto v = sys_tbl["nodule_diameter_p90"].value<double>()) {
+        nodule_diameter_p90 = *v;
+    } else {
+        std::cerr << "Warning: nodule_diameter_p90 not set in config, using default " << nodule_diameter_p90 << std::endl;
+    }
+    P.diam = LogNormalDiam::from_mean_p90(nodule_diameter_mean, nodule_diameter_p90);
+
+    // used to calculate number of nodules
+    // read in from global variables, but could also be read in from config, design choice I may change later
     P.L = sim_length;
     P.W = sim_width;
-
-    // Option A: specify target cover
-    P.use_target_cover = true;
-    P.target_cover = 0.064; // 6.4%
-
-    // Size distribution: mean 1.8 cm, 90th percentile 2.5 cm
-    P.diam = LogNormalDiam::from_mean_p90(0.018, 0.025);
-
-    // Overlap behavior
-    P.gap = 0.0;  // allow touching
-    P.max_attempts_per_nodule = 60;
-
-    // Patchiness (set patchy=false for homogeneous)
-    P.patchy = true;
-    P.patch_cell = 1.0;      // 1m-scale patches
-    P.patch_sigma = 0.8;     // higher = more patchy
-    P.patch_smooth_iters = 3;
-
-    P.seed = 42;
+    
 }
 
 void PatchLogNormalNodules::box_blur(std::vector<double>& a, int nx, int ny) {
@@ -81,7 +146,7 @@ std::vector<Nodule> PatchLogNormalNodules::generate_nodules() {
     int ny = std::max(1, static_cast<int>(std::ceil(P.W / P.patch_cell)));
     std::vector<double> field(nx * ny, 0.0);
 
-    if (P.patchy && P.patch_sigma > 0.0) {
+    if (P.using_patchy && P.patch_sigma > 0.0) {
         std::normal_distribution<double> N01(0.0, 1.0);
         for (auto& v : field) v = N01(rng);
         for (int it = 0; it < P.patch_smooth_iters; ++it) box_blur(field, nx, ny);

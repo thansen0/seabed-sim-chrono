@@ -16,11 +16,10 @@ struct Nodule {
 
 class AbstractNoduleGenerator {
 protected:
-    std::string config_path;
     DynamicSystemMulticore *sys;
 
 public:
-    AbstractNoduleGenerator(const std::string& config_path, DynamicSystemMulticore *sys) : config_path(config_path), sys(sys) {}
+    AbstractNoduleGenerator(const toml::table& config_tbl, DynamicSystemMulticore *sys) : sys(sys) {}
 
     virtual std::vector<Nodule> generate_nodules() {
         throw std::logic_error("AbstractNoduleGenerator::generate_nodules not implemented");

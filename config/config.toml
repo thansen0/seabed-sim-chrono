@@ -1,10 +1,34 @@
 [MASTER_CONFIG]
-sim_length = 2
+sim_length = 3
 sim_width = 2
 
 [SYSTEM]
 # values only used for DEM simulation, 
 # i.e. granular
-dem_particle_radius = 0.006
+dem_particle_radius = 0.005
 dem_particle_rho = 2000.0
 dem_layers = 3
+
+[NODULES]
+# use_target_cover chooses how number of nodules is determined,
+# true means we generate nodules as a fraction of total surface area
+# false means we generate nodules as a density, nodules per meter squared
+use_target_cover = true
+nodule_target_cover_fraction = 0.064   # fraction, e.g. 0.064 = 6.4%, if use_target_cover == true
+nodule_density_per_m_sqr = 250.0       # nodules / m^2 if use_target_cover == false
+
+# Nodule size distribution:
+nodule_diameter_mean = 0.018           # 18mm average
+nodule_diameter_90th_perc = 0.025      # 25mm diameter at 90th percentile
+
+# Hard-core overlap of nodule
+gap_between_nudules = 0.0              # extra spacing (m), e.g. 0.001 for 1mm, 0.0 means they may touch
+max_attempts_per_nodule = 50
+
+# Patchiness of spacial distribution of nodules
+using_patchy = true
+patch_cell = 1.0       # meters (intensity grid cell size)
+patch_sigma = 0.8      # larger => more patchy (0 => homogeneous)
+patch_smooth_iters = 3
+
+nodule_rand_seed = 42  # random if not set

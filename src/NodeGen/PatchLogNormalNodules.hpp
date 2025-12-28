@@ -137,15 +137,15 @@ private:
 
         // Hard-core overlap:
         double gap = 0.0;              // extra spacing (m), e.g. 0.001 for 1mm
-        int max_attempts_per_nodule = 50;
+        uint32_t max_attempts_per_nodule = 50;
 
         // Patchiness:
-        bool patchy = true;
+        bool using_patchy = true;
         double patch_cell = 1.0;       // meters (intensity grid cell size)
         double patch_sigma = 0.8;      // larger => more patchy (0 => homogeneous)
-        int patch_smooth_iters = 3;
+        uint32_t patch_smooth_iters = 3;
 
-        std::uint64_t seed = 12345;
+        std::uint64_t seed = 42;
     };
 
     // Simple in-place box blur on a 2D grid stored row-major
@@ -155,7 +155,7 @@ private:
     ConfigParams P;
 
 public:
-    PatchLogNormalNodules(const std::string& config_path, DynamicSystemMulticore *sys);
+    PatchLogNormalNodules(const toml::table& config_path, DynamicSystemMulticore *sys);
 
     std::vector<Nodule> generate_nodules() override;
 };
