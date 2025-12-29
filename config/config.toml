@@ -1,10 +1,11 @@
 [MASTER_CONFIG]
 sim_length = 3
 sim_width = 2
+sim_step_size = 1e-3
+steps_per_frame = 10
 
 [SYSTEM]
-# values only used for DEM simulation, 
-# i.e. granular
+# values only used for DEM simulation, i.e. granular
 dem_particle_radius = 0.005
 dem_particle_rho = 2000.0
 dem_layers = 3
@@ -31,4 +32,4 @@ patch_cell = 1.0       # meters (intensity grid cell size)
 patch_sigma = 0.8      # larger => more patchy (0 => homogeneous)
 patch_smooth_iters = 3
 
-nodule_rand_seed = 42  # random if not set
+# nodule_rand_seed = 42  # random if not set

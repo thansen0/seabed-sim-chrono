@@ -27,6 +27,8 @@ std::string config_path = "../config/config.toml";
 double sim_length;                          // X size
 double sim_width;                           // Y size
 constexpr double sim_particle_height{0.5};  // Z pos
+double sim_step_size{1e-3};
+int steps_per_frame{10};
 
 int main(int argc, char* argv[]) {
     TerrainType terrain_type = TerrainType::DEM;
@@ -132,8 +134,6 @@ int main(int argc, char* argv[]) {
     // -----------------------------------------
     // Main loop
     // -----------------------------------------
-    const double step = 1e-3;
-    const int steps_per_frame = 10;
     ChRealtimeStepTimer realtime;
 
     while (vis->Run()) {
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
         // goal is to only render a frame every couple of
         // simulation iterations
         for (int i = 0; i < steps_per_frame; i++) {
-            sys.AdvanceAll(step);
+            sys.AdvanceAll(sim_step_size);
         }
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
@@ -163,7 +163,7 @@ int main(int argc, char* argv[]) {
         duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
         std::cout << "VIS took " << duration << std::endl;
 
-        realtime.Spin(step);
+        realtime.Spin(sim_step_size);
     }
 
     return 0;

@@ -51,5 +51,21 @@ toml::table parse_toml_file(const std::string& filepath) {
         exit(2);
     }
 
+    if (auto v = config_tbl["MASTER_CONFIG"]["sim_step_size"].value<double>()) {
+        sim_step_size = *v;
+    } else if (auto v = config_tbl["sim_step_size"].value<double>()) {
+        sim_step_size = *v;
+    } else {
+        std::cerr << "Warning: sim_step_size not set in config, using default " << sim_step_size << std::endl;
+    }
+
+    if (auto v = config_tbl["MASTER_CONFIG"]["steps_per_frame"].value<int>()) {
+        steps_per_frame = *v;
+    } else if (auto v = config_tbl["steps_per_frame"].value<int>()) {
+        steps_per_frame = *v;
+    } else {
+        std::cerr << "Warning: steps_per_frame not set in config, using default " << steps_per_frame << std::endl;
+    }
+
     return config_tbl;
 }

@@ -7,6 +7,8 @@
 
 extern double sim_length;    // X size
 extern double sim_width;     // Y size
+extern double sim_step_size;
+extern int steps_per_frame;
 
 void lower(std::string& s);
 
